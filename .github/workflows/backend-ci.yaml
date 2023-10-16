@@ -28,7 +28,9 @@ jobs:
         python-version: 3.9
 
     - name: Install dependencies
-      run: pipenv install --dev
+      run: |
+        pip install pipenv
+        pipenv install --dev
  
     - name: Run linting
       run: pipenv run lint
@@ -48,7 +50,9 @@ jobs:
         python-version: 3.9
 
     - name: Install dependencies
-      run: pipenv install --dev
+      run: |
+        pip install pipenv
+        pipenv install --dev
 
     - name: Run tests
       run: pipenv run test
@@ -70,7 +74,9 @@ jobs:
         python-version: 3.9
 
     - name: Install dependencies
-      run: pipenv install --dev
+      run: |
+        pip install pipenv
+        pipenv install --dev
 
     - name: Build
       run: pipenv run test
