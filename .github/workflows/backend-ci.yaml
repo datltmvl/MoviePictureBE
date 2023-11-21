@@ -1,5 +1,5 @@
 # Workflow name
-name: CI Workflow
+name: BE CI Workflow
 
 # Triggers for the workflow
 on:
@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
 
   # Automatic trigger on pull request events targeting the main branch
-  # pull_request:
-  #   branches:
-  #     - main
+  pull_request:
+    branches:
+      - main
 
 # Jobs defined in the workflow
 jobs:
@@ -92,27 +92,6 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Use python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
-
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      env:
-        cache-name: cache-pip-modules
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/Pipfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-    - name: Install dependencies
+    - name: Build docker image
       run: |
-        pip install pipenv
-        pipenv install --dev
-
-    - name: Build
-      run: pipenv run test
+        docker build -t backend .
