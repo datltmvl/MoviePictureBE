@@ -140,6 +140,8 @@ jobs:
         echo "Pushing image to ecr"
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        echo "Getting image url"
+        IMAGE_URL=$(aws ecr describe-repositories --repository-names $REPOSITORY --region ${{ env.region }} | jq -r '.repositories[0].repositoryUri')
 
     - name: Set up kubectl
       uses: azure/setup-kubectl@v3
@@ -152,4 +154,6 @@ jobs:
 
     - name: Deploy to Kubernetes
       run: |
-        kubectl apply -f deployment.yml --kubeconfig=kubeconfig.yaml
+        cd ./k8s
+        kustomize edit set image backend=IMAGE_URL
+        kustomize build | kubectl apply -f -
