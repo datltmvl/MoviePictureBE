@@ -86,7 +86,8 @@ jobs:
     needs: [lint, test]
     # The operating system for the runner
     runs-on: ubuntu-latest
-
+    env:
+      region: us-east-1
     # Steps in the job
     steps:
     - name: Check out repository
@@ -123,7 +124,7 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-east-1
+        aws-region: ${{ env.region }}
   
     - name: Login to Amazon ECR
       id: login-ecr
@@ -139,13 +140,16 @@ jobs:
         echo "Pushing image to ecr"
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-    
+
     - name: Set up kubectl
       uses: azure/setup-kubectl@v3
       with:
         version: 'latest'
 
+    - name: Create kubeconfig file 
+      run: |
+        aws eks update-kubeconfig --name cluster --region ${{ env.region }}
+
     - name: Deploy to Kubernetes
       run: |
-        echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
         kubectl apply -f deployment.yml --kubeconfig=kubeconfig.yaml
